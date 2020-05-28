@@ -2,21 +2,67 @@
 
 namespace Blog\Controller;
 
-use Blog\Models\UserModel;
+use Blog\Helper\SetTypesHelper;
+use Blog\Model\PostModel;
+use Blog\Model\UserModel;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
 
 class MainController extends BaseController
-    {
+{
 
-        public function mainC(Request $request, Response $response)
-        {
-            $us = new UserModel();
-            $s = $us->load();
-            $response->getBody()->write(json_encode(['s' => $s]));
+	public function mainC(Request $request, Response $response)
+	{
+		$mask = UserModel::CAN_CREATE_POST | UserModel::CAN_CREATE_COMMENT;
+		$user = (new UserModel())
+			->setUsername('ostiwe')
+			->setEmail('admin@ostiwe.ru')
+			->setPassword('123455')
+			->setFirstName('Tester')
+			->setLastName('Test')
+			->setAge(19)
+			->setSex(0)
+			->setMask($mask)->create();
 
-            return $response->withHeader('Content-Type', 'application/json');
-        }
+		$post = (new  PostModel())
+			->setAuthor($user)
+			->setTitle("Test post")
+			->setText("Osjkaoiads adokasd aidaod anduiahd iahduia diaduia aijdiuah dasdiandoi ospdjaoi idajdoia")
+			->setViews(0)->create();
 
-    }
+		$response->getBody()->write(json_encode(['s' => 'sd']));
+
+		return $response->withHeader('Content-Type', 'application/json');
+	}
+
+	public function post(Request $request, Response $response)
+	{
+		try {
+			$post = (new PostModel())->load(1);
+			$response->getBody()->write(json_encode(['s' => $post->getAuthor()->getEmail()]));
+		} catch (\Exception $e) {
+			$response->getBody()->write(json_encode(['s' => $e->getMessage()]));
+		}
+
+
+		return $response->withHeader('Content-Type', 'application/json');
+
+	}
+
+	public function user(Request $request, Response $response)
+	{
+		try {
+			$user = (new UserModel())->load(5);
+			$response->getBody()->write(json_encode(['s' =>
+				SetTypesHelper::handle($user->getBean()->export())]));
+		} catch (\Exception $e) {
+			$response->getBody()->write(json_encode(['s' => 'sd']));
+		}
+
+
+		return $response->withHeader('Content-Type', 'application/json');
+
+	}
+
+}

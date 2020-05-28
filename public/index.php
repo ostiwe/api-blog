@@ -1,5 +1,7 @@
 <?php
 
+header('Access-Control-Allow-Origin:*');
+header('Access-Control-Allow-Headers:content-type');
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/init.php';
@@ -9,9 +11,11 @@ Dotenv\Dotenv::createImmutable(dirname(__DIR__))->load();
 require dirname(__DIR__) . '/libs/db_config.php';
 
 
+use Blog\Controller\AuthController;
 use Blog\Controller\MainController;
 use DI\Container;
 use Slim\Factory\AppFactory;
+use Slim\Routing\RouteCollectorProxy;
 
 $container = new Container();
 
@@ -19,9 +23,14 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 
+$app->group('/auth', function (RouteCollectorProxy $group) {
+	$group->post('/register', AuthController::class . ':register');
+	$group->post('/login', AuthController::class . ':login');
+});
+
 $app->get('/', MainController::class . ':mainC');
-
-
+$app->get('/post', MainController::class . ':post');
+$app->get('/user', MainController::class . ':user');
 
 
 /**
