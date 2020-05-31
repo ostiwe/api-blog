@@ -9,12 +9,16 @@ use RedBeanPHP\OODBBean;
 class UserModel
 {
 
+
 	const CAN_CREATE_POST = 1 << 0;
 	const CAN_DELETE_POST = 1 << 1;
 
 
 	const CAN_CREATE_COMMENT = 1 << 2;
 	const CAN_DELETE_COMMENT = 1 << 3;
+
+
+	const CAN_ACCESS_TO_ADMIN_PANEL = 1 << 4;
 
 	private $id;
 	private $uid;
@@ -276,9 +280,6 @@ class UserModel
 		$this->age = (int)$user->age;
 		$this->sex = (int)$user->sex;
 
-//            R::getWriter()->addUniqueIndex('user', ['uid']);
-//            R::getWriter()->addUniqueIndex('user', ['username']);
-//            R::getWriter()->addUniqueIndex('user', ['email']);
 
 		return $this;
 	}

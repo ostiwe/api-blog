@@ -151,5 +151,37 @@ class PostModel
 		return $this;
 	}
 
+	public function getPosts($page = 1, $offset = 0, $limit = 10)
+	{
+		if (!$page) $page = 1;
+		if (!$offset || $offset < 0) $offset = 0;
+		if (!$limit || $limit < 0) $limit = 10;
+
+		if ($page > 1) {
+			$offset = ($page * $limit) - $limit;
+		}
+
+
+		$postsList = [];
+		$posts = R::findCollection('post', 'LIMIT ? OFFSET ?', [$limit, $offset]);
+		while ($post = $posts->next()) {
+			$author = R::load('user', $post['author_id']);
+
+			$postsList[] = [
+				'post' => [
+					'title' => $post['title'],
+					'text' => $post['text'],
+					'id' => $post['uid'],
+				],
+				'author' => [
+					'login' => $author['username'],
+					'id' => $author['uid'],
+				],
+			];
+
+		}
+
+		return $postsList;
+	}
 
 }

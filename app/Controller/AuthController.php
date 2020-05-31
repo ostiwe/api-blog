@@ -33,9 +33,9 @@ class AuthController
 
 		if (empty($userLogin)) $errors[] = 'login need';
 		if (empty($email)) $errors[] = 'email need';
-		if (empty($first_name)) $errors[] = 'first_name need';
-		if (empty($last_name)) $errors[] = 'last_name need';
-		if (!($sex === 0 || $sex === 1)) $errors[] = 'sex need';
+//		if (empty($first_name)) $errors[] = 'first_name need';
+//		if (empty($last_name)) $errors[] = 'last_name need';
+//		if (!($sex === 0 || $sex === 1)) $errors[] = 'sex need';
 		if (empty($age)) $errors[] = 'age need';
 		if (empty($password)) $errors[] = 'password need';
 
@@ -111,7 +111,7 @@ class AuthController
 
 			if (!password_verify($body['password'], $user['password'])) {
 				$response->getBody()->write(json_encode(['status' => 'auth_error',
-					'message' => 'User not found or password entered incorrectly']));
+					'message' => 'User not found or password entered incorrectly', '_' => $body, '__' => $user->export()]));
 				return $response->withStatus(200)->withAddedHeader('Content-Type', 'Application\json');
 			}
 
@@ -131,8 +131,8 @@ class AuthController
 					'user_info' => [
 						'login' => $userModel->getUsername(),
 						'uid' => $userModel->getUid(),
+						'access_token' => $accessToken,
 					],
-					'access_token' => $accessToken,
 				]]));
 			return $response->withStatus(200)->withAddedHeader('Content-Type', 'Application\json');
 
