@@ -275,6 +275,7 @@ class UserModel
 		$this->password = $user['password'];
 		$this->email = $user['email'];
 		$this->bean = $user;
+		$this->mask = $user['mask'];
 		$this->firstName = $user->first_name;
 		$this->lastName = $user->last_name;
 		$this->age = (int)$user->age;

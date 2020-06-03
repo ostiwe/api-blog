@@ -15,6 +15,26 @@ class PostModel
 	private $text;
 	private UserModel $author;
 	private $views;
+	private $published;
+
+	/**
+	 * @return mixed
+	 */
+	public function getPublished()
+	{
+		return $this->published;
+	}
+
+	/**
+	 * @param mixed $published
+	 *
+	 * @return PostModel
+	 */
+	public function setPublished($published)
+	{
+		$this->published = $published;
+		return $this;
+	}
 
 
 	/**
@@ -126,6 +146,7 @@ class PostModel
 		$this->title = $post['title'];
 		$this->text = $post['text'];
 		$this->author = (new UserModel())->load($post['author_id']);
+		$this->published = $post['published'];
 
 
 		return $this;
@@ -141,11 +162,12 @@ class PostModel
 			$newPost->title = $this->title;
 			$newPost->text = $this->text;
 			$newPost->author = $this->author->getBean();
+			$newPost->published = $this->published;
 			$newPostId = R::store($newPost);
 			R::commit();
 			$this->uid = $uid;
 			$this->id = $newPostId;
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			R::rollback();
 		}
 		return $this;
@@ -172,6 +194,7 @@ class PostModel
 					'title' => $post['title'],
 					'text' => $post['text'],
 					'id' => $post['uid'],
+					'published' => $post['published'],
 				],
 				'author' => [
 					'login' => $author['username'],

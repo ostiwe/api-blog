@@ -12,6 +12,7 @@ require dirname(__DIR__) . '/libs/db_config.php';
 
 use Blog\Controller\AuthController;
 use Blog\Controller\MainController;
+use Blog\Middleware\AccessTokenMiddleware;
 use DI\Container;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
@@ -27,13 +28,12 @@ $app->group('/auth', function (RouteCollectorProxy $group) {
 	$group->post('/register', AuthController::class . ':register');
 	/** @see AuthController::login() */
 	$group->post('/login', AuthController::class . ':login');
+	/** @see AuthController::getInfo() */
+	$group->post('/info', AuthController::class . ':getInfo')->add(new AccessTokenMiddleware());
 });
 
-$app->get('/', MainController::class . ':mainC');
 /** @see MainController::post() */
 $app->post('/posts', MainController::class . ':post');
-/** @see  MainController::user() */
-$app->post('/user', MainController::class . ':user');
 
 
 /**

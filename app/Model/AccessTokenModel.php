@@ -4,6 +4,7 @@
 namespace Blog\Model;
 
 
+use Exception;
 use R;
 
 class AccessTokenModel
@@ -95,7 +96,7 @@ class AccessTokenModel
 	{
 		try {
 			$token = bin2hex(random_bytes(20));
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$token = bin2hex(rand(9999, PHP_INT_MAX) . 'hello,im.....' . rand(9999, PHP_INT_MAX));
 		}
 
@@ -110,7 +111,7 @@ class AccessTokenModel
 		try {
 			$newToken = R::dispense('token');
 			$newToken->access_token = $generatedToken;
-			$newToken->onwer = $this->owner->getBean();
+			$newToken->owner = $this->owner->getBean();
 			$newToken->expired = $this->expired;
 			$newToken->created = $this->created;
 			$newToken->mask = $this->mask;
@@ -118,10 +119,30 @@ class AccessTokenModel
 			R::commit();
 
 			return $generatedToken;
-		} catch (\Exception $exception) {
+		} catch (Exception $exception) {
 			R::rollback();
 			return false;
 		}
+	}
+
+	public function load($accessToken)
+	{
+		$token = R::findOne('token', 'access_token = ?', [$accessToken]);
+		if ($token !== NULL || $token['id'] !== 0) {
+			try {
+				$user = (new UserModel())->load($token['owner_id']);
+			} catch (Exception $e) {
+				return false;
+			}
+
+			$this->expired = $token['expired'];
+			$this->created = $token['created'];
+			$this->mask = $token['mask'];
+			$this->owner = $user;
+			$this->accessToken = $token['access_token'];
+			return $this;
+		}
+		return false;
 	}
 
 	public function verifyToken($accessToken)
@@ -131,6 +152,14 @@ class AccessTokenModel
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getAccessToken()
+	{
+		return $this->accessToken;
 	}
 
 }

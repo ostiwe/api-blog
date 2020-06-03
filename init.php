@@ -41,6 +41,7 @@ if (!in_array('.env', $dirs)) {
 		->setTitle("Welcome!")
 		->setText('This is the first post on your blog!')
 		->setAuthor($admin)
+		->setPublished(time())
 		->create();
 
 	R::getWriter()->addUniqueIndex('user', ['uid']);

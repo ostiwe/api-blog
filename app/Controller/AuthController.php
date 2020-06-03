@@ -24,9 +24,9 @@ class AuthController
 		$errors = [];
 		$userLogin = preg_replace('/\s+/', ' ', $params['login']);
 		$email = preg_replace('/\s+/', ' ', $params['email']);
-		$first_name = preg_replace('/\s+/', ' ', $params['first_name']);
-		$last_name = preg_replace('/\s+/', ' ', $params['last_name']);
-		$sex = (int)$params['sex'];
+//		$first_name = preg_replace('/\s+/', ' ', $params['first_name']);
+//		$last_name = preg_replace('/\s+/', ' ', $params['last_name']);
+//		$sex = (int)$params['sex'];
 		$age = (int)$params['age'];
 		$password = preg_replace('/\s+/', ' ', $params['password']);
 
@@ -54,7 +54,6 @@ class AuthController
 
 	public function register(Request $request, Response $response)
 	{
-		$errors = [];
 		if ($request->hasHeader('Content-Type') && strtolower($request->getHeaderLine('Content-Type')) === "application/json") {
 			$body = self::getParsedBody();
 
@@ -65,7 +64,7 @@ class AuthController
 				return $response->withStatus(400)->withAddedHeader('Content-Type', 'Application\json');
 			}
 
-			$newUser = (new UserModel())
+			(new UserModel())
 				->setUsername($body['login'])
 				->setEmail($body['email'])
 				->setPassword($body['password'])
@@ -88,7 +87,6 @@ class AuthController
 
 	public function login(Request $request, Response $response)
 	{
-		$errors = [];
 		if ($request->hasHeader('Content-Type') && strtolower($request->getHeaderLine('Content-Type')) === "application/json") {
 			$body = self::getParsedBody();
 
@@ -132,6 +130,7 @@ class AuthController
 						'login' => $userModel->getUsername(),
 						'uid' => $userModel->getUid(),
 						'access_token' => $accessToken,
+						'mask' => $userModel->getMask(),
 					],
 				]]));
 			return $response->withStatus(200)->withAddedHeader('Content-Type', 'Application\json');
@@ -140,5 +139,35 @@ class AuthController
 		$response->getBody()->write(json_encode(['status' => 'client_error', 'message' => 'Invalid request body']));
 		return $response->withStatus(400)->withAddedHeader('Content-Type', 'Application\json');
 
+	}
+
+	public function getInfo(Request $request, Response $response)
+	{
+		$body = self::getParsedBody();
+
+		$token = (new AccessTokenModel())->load($body['access_token']);
+		if (!$token) {
+			$response->getBody()->write(json_encode(['status' => 'bad_request',
+				'message' => 'access token not passed']));
+			return $response;
+		}
+
+		$info = [
+			'status' => 'success',
+			'access_token' => [
+				'access_token' => $token->getAccessToken(),
+				'expired' => $token->getExpired(),
+				'mask' => $token->getMask(),
+			],
+			'user_info' => [
+				'login' => $token->getOwner()->getUsername(),
+				'uid' => $token->getOwner()->getUid(),
+				'mask' => $token->getOwner()->getMask(),
+			],
+		];
+
+		$response->getBody()->write(json_encode(SetTypesHelper::handle($info)));
+
+		return $response;
 	}
 }
