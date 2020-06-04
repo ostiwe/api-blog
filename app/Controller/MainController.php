@@ -10,7 +10,7 @@ use Slim\Psr7\Response;
 class MainController extends BaseController
 {
 
-	public function post(Request $request, Response $response)
+	public function getPosts(Request $request, Response $response)
 	{
 		$body = json_decode(file_get_contents('php://input'), true);
 		$posts = (new PostModel())->getPosts($body['page']);

@@ -32,8 +32,8 @@ $app->group('/auth', function (RouteCollectorProxy $group) {
 	$group->post('/info', AuthController::class . ':getInfo')->add(new AccessTokenMiddleware());
 });
 
-/** @see MainController::post() */
-$app->post('/posts', MainController::class . ':post');
+/** @see MainController::getPosts() */
+$app->post('/posts', MainController::class . ':getPosts');
 
 
 /**
