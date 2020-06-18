@@ -1,0 +1,1 @@
+[Project Moved](https://github.com/ostiwe/symfony-api)
